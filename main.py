@@ -3,6 +3,7 @@ import pyperclip
 from bs4 import BeautifulSoup
 import pandas as pd
 
+
 # https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc={lstDates[0]}&td={lstDates[-1]}
 
 def submit_form():
@@ -30,7 +31,6 @@ def submit_form():
     pyautogui.press('enter')
     pyautogui.sleep(30) # Wait for results to load
 
-
 def extract_html():
      # open DevTools
     pyautogui.press('f12')
@@ -56,7 +56,7 @@ def extract_html():
 def create_dataframe(soup):
     data = []
 
-    cols = ['Docket', 'CourtPart', 'Defendant', 'CalendarSection', 'Judge', 'Date']
+    cols = ['Docket', 'CourtPart', 'Defendant', 'CalendarSection', 'Judge', 'CourtDate']
 
     tables = soup.find_all('table')
     for table in tables:
