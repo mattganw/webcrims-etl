@@ -20,7 +20,7 @@ def submit_form():
 
     # Select court parts ( 25 limit )
     pyautogui.keyDown("ctrl")
-    for _ in range(3):
+    for _ in range(15):
         pyautogui.press('down')
         pyautogui.press('space')
     pyautogui.keyUp("ctrl")
@@ -28,7 +28,7 @@ def submit_form():
     # Submit
     pyautogui.press('tab', presses=2)
     pyautogui.press('enter')
-    pyautogui.sleep(10) # Wait for results to load
+    pyautogui.sleep(30) # Wait for results to load
 
 
 def extract_html():
@@ -70,7 +70,12 @@ def create_dataframe(soup):
     df = pd.DataFrame(data, columns=cols)
 
     # Clean data
-    df[df.isnull().any(axis=1)]
+
+    # Convert 'April 09, 2026' → '2026-04-09'
+    df['Date'] = pd.to_datetime(df['Date'], format='%B %d, %Y').dt.strftime('%Y-%m-%d')
+
+    # Replace asterisks *
+    df['CalendarSection'] = df['CalendarSection'].apply(lambda x: x.replace('*', ''))
 
     return df
 
