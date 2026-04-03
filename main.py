@@ -1,10 +1,12 @@
 import pyautogui
 import pyperclip
+from bs4 import BeautifulSoup
+import pandas as pd
 
 # https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc={lstDates[0]}&td={lstDates[-1]}
 
 def submit_form():
-    url = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc=04/02/2026&td=04/09/2026"
+    url = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc=04/03/2026&td=04/09/2026"
     pyautogui.press('win')
     pyautogui.sleep(2)
     pyautogui.write('chrome')
@@ -18,14 +20,15 @@ def submit_form():
 
     # Select court parts ( 25 limit )
     pyautogui.keyDown("ctrl")
-    for _ in range(24):
+    for _ in range(3):
         pyautogui.press('down')
         pyautogui.press('space')
     pyautogui.keyUp("ctrl")
     
+    # Submit
     pyautogui.press('tab', presses=2)
     pyautogui.press('enter')
-    pyautogui.sleep(15) # Wait for results to load
+    pyautogui.sleep(10) # Wait for results to load
 
 
 def extract_html():
@@ -38,7 +41,7 @@ def extract_html():
     pyautogui.sleep(1)
 
     # type JS to get full HTML
-    pyautogui.write("copy(document.querySelector('table').outerHTML)")
+    pyautogui.write("copy(document.querySelector('*').outerHTML)")
     pyautogui.press('enter')
 
     pyautogui.sleep(1)
@@ -50,7 +53,31 @@ def extract_html():
     html = pyperclip.paste()
     return html
 
+def create_dataframe(soup):
+    data = []
+
+    cols = ['Docket', 'CourtPart', 'Defendant', 'CalendarSection', 'Judge', 'Date']
+
+    tables = soup.find_all('table')
+    for table in tables:
+        date = table.find('caption').text.strip()
+        body = table.find('tbody')
+        for row in body.find_all('tr')[1:]: # skip header
+            cells = [td.text.strip() for td in row.find_all('td')]
+            if cells:
+                data.append(cells + [date])
+
+    df = pd.DataFrame(data, columns=cols)
+
+    # Clean data
+    df[df.isnull().any(axis=1)]
+
+    return df
+
 if __name__ == "__main__":
     submit_form()
-    data = extract_html()
-    print(data)
+    html = extract_html()
+    soup = BeautifulSoup(html, 'html.parser')
+
+    df = create_dataframe(soup=soup)
+    print(df)
