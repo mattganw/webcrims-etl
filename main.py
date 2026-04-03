@@ -1,12 +1,15 @@
 import pyautogui
 import pyperclip
-from bs4 import BeautifulSoup
 import pandas as pd
+from bs4 import BeautifulSoup
+
+from controller import insert_data
 
 
 # https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc={lstDates[0]}&td={lstDates[-1]}
 
 def submit_form():
+    """ Visits Webcrims and submits the form using pyautogui """
     url = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc=04/03/2026&td=04/09/2026"
     pyautogui.press('win')
     pyautogui.sleep(2)
@@ -32,6 +35,7 @@ def submit_form():
     pyautogui.sleep(30) # Wait for results to load
 
 def extract_html():
+    """ Extracts and returns full HTML of the page """
      # open DevTools
     pyautogui.press('f12')
     pyautogui.sleep(2)
@@ -46,7 +50,7 @@ def extract_html():
 
     pyautogui.sleep(1)
 
-    # close DevTools (optional)
+    # close DevTools 
     pyautogui.press('f12')
     pyautogui.sleep(1)
 
@@ -54,6 +58,7 @@ def extract_html():
     return html
 
 def create_dataframe(soup):
+    """ Converts HTML tables into a dataframe object """
     data = []
 
     cols = ['Docket', 'CourtPart', 'Defendant', 'CalendarSection', 'Judge', 'CourtDate']
@@ -69,20 +74,27 @@ def create_dataframe(soup):
 
     df = pd.DataFrame(data, columns=cols)
 
-    # Clean data
-
     # Convert 'April 09, 2026' → '2026-04-09'
-    df['Date'] = pd.to_datetime(df['Date'], format='%B %d, %Y').dt.strftime('%Y-%m-%d')
-
+    df['CourtDate'] = pd.to_datetime(df['CourtDate'], format='%B %d, %Y').dt.strftime('%Y-%m-%d')
     # Replace asterisks *
     df['CalendarSection'] = df['CalendarSection'].apply(lambda x: x.replace('*', ''))
 
     return df
 
 if __name__ == "__main__":
+
+    # 1. Submit form and extract HTML tables
     submit_form()
     html = extract_html()
     soup = BeautifulSoup(html, 'html.parser')
 
+    # 2. Create dataframe
     df = create_dataframe(soup=soup)
-    print(df)
+
+    # 3. Insert into SQL db
+    # TODO: Use MERGE to handle updates and state
+    # Need to create staging table to merge results
+    # TRUNCATE TABLE before each load
+
+    
+    insert_data(df)
