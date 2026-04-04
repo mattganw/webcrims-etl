@@ -13,7 +13,7 @@ def insert_data(df):
     cursor = conn.cursor()
 
     insert_sql = '''
-    INSERT INTO Webcrims (Docket, CourtPart, Defendant, CalendarSection, Judge, CourtDate)
+    INSERT INTO Webcrims_Staging (Docket, CourtPart, Defendant, CalendarSection, Judge, CourtDate)
     VALUES (?, ?, ?, ?, ?, ?)
     '''
 
