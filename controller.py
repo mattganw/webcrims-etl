@@ -1,25 +1,26 @@
 from database import connect_to_db
+import pandas as pd
 
-def fetch_webcrims():
-    conn = None
-    try:
-        conn = connect_to_db()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Webcrims_Staging;")
-        for row in cursor.fetchall():
-            print(row)
-    except Exception:
-        raise
-    finally:
-       conn.close()
+def fetch_webcrims() -> pd.DataFrame:
+    """ Fetches dbo.Webcrims and returns it as a DataFrame """
 
-def insert_data(df):
-    conn = None
-    try:
-        conn = connect_to_db()
-        cursor = conn.cursor()
+    query = '''SELECT * FROM dbo.Webcrims;'''
+    cols = ['ID', 'Docket', 'CourtPart', 'Defendant', 'CalendarSection', 'Judge', 'CourtDate', 'Active', 'CreatedAt', 'ModifiedAt']
+    
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query)
+            rows = cursor.fetchall()
 
-        insert_sql = '''
+    return pd.DataFrame(rows, columns=cols)
+
+def insert_data(df: pd.DataFrame) -> int:
+    """ Inserts DataFrame into dbo.Webcrims_Staging, returns amount of rows inserted """
+
+    if df.empty:
+        raise Exception("Empty dataframe")
+    
+    insert_sql = '''
         INSERT INTO Webcrims_Staging (Docket, CourtPart, Defendant, CalendarSection, Judge, CourtDate)
         VALUES (
             NULLIF(?, ''), 
@@ -30,24 +31,19 @@ def insert_data(df):
             NULLIF(?, '')
         );
         '''
+    
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.executemany(insert_sql, df.values.tolist())
+            conn.commit()
+    return df.shape[0]
 
-        cursor.executemany(insert_sql, df.values.tolist())
-        conn.commit()
-    except Exception:
-        raise
-    finally:
-        conn.close()
+def merge_data() -> None:
+    """ Merges dbo.Webcrims_Staging into dbo.Webcrims, and then truncates dbo.Webcrims_Staging """
 
-def merge_data():
-    conn = None
-    try:
-
-        conn = connect_to_db()
-        cursor = conn.cursor()
-
-        merge_sql = '''
-        MERGE Webcrims AS target
-        USING Webcrims_Staging AS source
+    merge_sql = '''
+        MERGE dbo.Webcrims AS target
+        USING dbo.Webcrims_Staging AS source
         ON target.Docket = source.Docket
 
         WHEN MATCHED THEN
@@ -68,19 +64,22 @@ def merge_data():
         UPDATE SET
             target.Active = 0,
             target.ModifiedAt = SYSDATETIME();
-        '''
-        truncate_sql = '''TRUNCATE TABLE dbo.Webcrims_Staging;'''
-        cursor.execute(merge_sql)
-        cursor.execute(truncate_sql)
-        conn.commit()
-    except Exception:
-        raise
-    finally:
-        conn.close()
-        
+    '''
+
+    truncate_sql = "TRUNCATE TABLE dbo.Webcrims_Staging;"
+
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT TOP (1) 1 FROM dbo.Webcrims_Staging;")
+            is_empty = cursor.fetchone() is None
+
+            if is_empty:
+                raise Exception("Staging table is empty. Cannot perform merge.")
+            
+            cursor.execute(merge_sql)
+            cursor.execute(truncate_sql)
+
+            conn.commit()
 
 if __name__ == "__main__":
-    #fetch_webcrims()
-    #insert_data()
-    #merge_data()
     pass

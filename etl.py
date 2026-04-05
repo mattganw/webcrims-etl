@@ -1,6 +1,8 @@
 import pyautogui
 import pyperclip
 import pandas as pd
+import sys
+import traceback
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
@@ -9,8 +11,7 @@ from controller import (
     merge_data
 )
 
-
-def submit_form():
+def submit_form() -> None:
     """ Visits Webcrims and submits the form using pyautogui """
     start_date = datetime.today()
     start_date_str = datetime.today().strftime('%m/%d/%Y')
@@ -33,7 +34,7 @@ def submit_form():
 
     # Select court parts ( 25 limit )
     pyautogui.keyDown("ctrl")
-    for _ in range(15):
+    for _ in range(24):
         pyautogui.press('down')
         pyautogui.press('space')
     pyautogui.keyUp("ctrl")
@@ -41,9 +42,9 @@ def submit_form():
     # Submit
     pyautogui.press('tab', presses=2)
     pyautogui.press('enter')
-    pyautogui.sleep(15) # Wait for results to load
+    pyautogui.sleep(30) # Wait for results to load
 
-def extract_html():
+def extract_html() -> str:
     """ Extracts and returns full HTML of the page """
      # open DevTools
     pyautogui.press('f12')
@@ -66,8 +67,8 @@ def extract_html():
     html = pyperclip.paste()
     return html
 
-def create_dataframe(soup):
-    """ Converts HTML tables into a dataframe object """
+def create_dataframe(soup: BeautifulSoup) -> pd.DataFrame:
+    """ Converts HTML tables into a DataFrame """
     data = []
 
     cols = ['Docket', 'CourtPart', 'Defendant', 'CalendarSection', 'Judge', 'CourtDate']
@@ -90,20 +91,31 @@ def create_dataframe(soup):
 
     return df
 
+def main() -> None:
+    """ Main pipeline """
+    try:
+        # Submit form and extract HTML tables
+        submit_form()
+        html = extract_html()
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Create DataFrame
+        df = create_dataframe(soup=soup)
+        print(f"{df.shape[0]} dockets found")
+
+        if df.empty:
+            raise Exception("No dockets found")
+
+        inserted_count = insert_data(df)
+        print(f"{inserted_count} rows inserted into staging")
+
+        merge_data()
+        print("Merged into Webcrims")
+
+    except Exception as e:
+        print(f"Error running pipeline: {e}")
+        traceback.print_exc()
+        sys.exit(1)
+
 if __name__ == "__main__":
-
-    # 1. Submit form and extract HTML tables
-    submit_form()
-    html = extract_html()
-    soup = BeautifulSoup(html, 'html.parser')
-
-    # 2. Create dataframe
-    df = create_dataframe(soup=soup)
-    #pd.set_option('display.max_rows', None)
-    #print(df)
-
-    # 3. Insert into SQL db into staging
-    insert_data(df)
-
-    # 4. Merge changes
-    merge_data()
+    main()
