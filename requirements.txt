@@ -1,0 +1,6 @@
+python-dotenv
+pyautogui
+pyperclip
+pandas
+beautifulsoup4
+mssql-python
