@@ -2,15 +2,24 @@ import pyautogui
 import pyperclip
 import pandas as pd
 from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 
-from controller import insert_data
+from controller import (
+    insert_data,
+    merge_data
+)
 
-
-# https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc={lstDates[0]}&td={lstDates[-1]}
 
 def submit_form():
     """ Visits Webcrims and submits the form using pyautogui """
-    url = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc=04/03/2026&td=04/09/2026"
+    start_date = datetime.today()
+    start_date_str = datetime.today().strftime('%m/%d/%Y')
+
+    end_date = start_date + timedelta(days=7)
+    end_date_str = end_date.strftime('%m/%d/%Y')
+
+    url = f"https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar?optionCountyCourt=NY051033J%3AU&dc={start_date_str}&td={end_date_str}"
+
     pyautogui.press('win')
     pyautogui.sleep(2)
     pyautogui.write('chrome')
@@ -32,7 +41,7 @@ def submit_form():
     # Submit
     pyautogui.press('tab', presses=2)
     pyautogui.press('enter')
-    pyautogui.sleep(30) # Wait for results to load
+    pyautogui.sleep(15) # Wait for results to load
 
 def extract_html():
     """ Extracts and returns full HTML of the page """
@@ -74,10 +83,10 @@ def create_dataframe(soup):
 
     df = pd.DataFrame(data, columns=cols)
 
-    # Convert 'April 09, 2026' → '2026-04-09'
-    df['CourtDate'] = pd.to_datetime(df['CourtDate'], format='%B %d, %Y').dt.strftime('%Y-%m-%d')
+    # Convert 'April 09, 2026' → datetime.date(2026, 4, 9)
+    df['CourtDate'] = pd.to_datetime(df['CourtDate'], format='%B %d, %Y', errors='coerce').dt.date
     # Replace asterisks *
-    df['CalendarSection'] = df['CalendarSection'].apply(lambda x: x.replace('*', ''))
+    df['CalendarSection'] = df['CalendarSection'].apply(lambda x: x.replace('*', '') if isinstance(x, str) else x)
 
     return df
 
@@ -90,11 +99,11 @@ if __name__ == "__main__":
 
     # 2. Create dataframe
     df = create_dataframe(soup=soup)
+    #pd.set_option('display.max_rows', None)
+    #print(df)
 
-    # 3. Insert into SQL db
-    # TODO: Use MERGE to handle updates and state
-    # Need to create staging table to merge results
-    # TRUNCATE TABLE before each load
-
-    
+    # 3. Insert into SQL db into staging
     insert_data(df)
+
+    # 4. Merge changes
+    merge_data()

@@ -14,14 +14,15 @@ if __name__ == "__main__":
         BEGIN
             CREATE TABLE Webcrims (
                 ID INT IDENTITY(1, 1) PRIMARY KEY,
-                Docket NVARCHAR(50) NOT NULL,
-                CourtPart NVARCHAR(20),
+                Docket NVARCHAR(100) NOT NULL,
+                CourtPart NVARCHAR(100),
                 Defendant NVARCHAR(255), 
-                CalendarSection NVARCHAR(20),
+                CalendarSection NVARCHAR(100),
                 Judge NVARCHAR(255), 
                 CourtDate DATE,
                 Active BIT NOT NULL DEFAULT 1,
-                CreatedAt DATETIME NOT NULL DEFAULT SYSDATETIME()
+                CreatedAt DATETIME NOT NULL DEFAULT SYSDATETIME(), 
+                ModifiedAt DATETIME NULL
             );
         END
     ''')
@@ -35,13 +36,12 @@ if __name__ == "__main__":
         BEGIN
             CREATE TABLE Webcrims_Staging (
                 ID INT IDENTITY(1, 1) PRIMARY KEY,
-                Docket NVARCHAR(50) NOT NULL,
-                CourtPart NVARCHAR(20),
+                Docket NVARCHAR(100) NOT NULL,
+                CourtPart NVARCHAR(100),
                 Defendant NVARCHAR(255), 
-                CalendarSection NVARCHAR(20),
+                CalendarSection NVARCHAR(100),
                 Judge NVARCHAR(255), 
                 CourtDate DATE,
-                Active BIT NOT NULL DEFAULT 1,
                 CreatedAt DATETIME NOT NULL DEFAULT SYSDATETIME()
             );
         END
