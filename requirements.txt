@@ -4,3 +4,4 @@ pyperclip
 pandas
 beautifulsoup4
 mssql-python
+requests
