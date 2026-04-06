@@ -1,5 +1,3 @@
-# WebCrims ETL
-
 ## Features
 - PyAutoGUI automation script to navigate and scrape the NYS WebCriminal court calendar.
 - Backend service to store extracted court data in a Microsoft SQL Server (MSSQL) database.
