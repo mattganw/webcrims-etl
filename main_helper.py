@@ -1,3 +1,5 @@
+from operator import le
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
@@ -18,6 +20,9 @@ def get_num_courtparts() -> int:
         court_part_dropdown = driver.find_element(By.ID, 'textCourtPart')
         options_all = court_part_dropdown.find_elements(By.TAG_NAME, "option")
         options_filtered = [opt for opt in options_all if opt.get_attribute("value") != "0"]
+
+        if len(options_filtered) <= 0:
+            raise Exception("No court parts were returned")
 
         return len(options_filtered)
 
