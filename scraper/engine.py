@@ -16,6 +16,18 @@ class WebcrimsBot:
         self.start_date = datetime.today()
         self.end_date = (self.start_date + timedelta(days=num_days))
     
+    def build_url(self, county_code) -> str:
+        """ Builds the URL to navigate to """
+        start_date_str = self.start_date.strftime('%m/%d/%Y')
+        end_date_str = self.end_date.strftime('%m/%d/%Y')
+        
+        return (
+        "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
+        f"?optionCountyCourt={county_code}"
+        f"&dc={start_date_str}"
+        f"&td={end_date_str}"
+        )
+    
     def open_chrome(self) -> None:
         " Opens an instance of a Chrome browser "
         pyautogui.press("win")
@@ -40,18 +52,6 @@ class WebcrimsBot:
         pyautogui.press('tab')
         pyautogui.press('enter')
         pyautogui.sleep(15) # Wait for results to load
-    
-    def build_url(self, county_code) -> str:
-
-        start_date_str = self.start_date.strftime('%m/%d/%Y')
-        end_date_str = self.end_date.strftime('%m/%d/%Y')
-        
-        return (
-        "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
-        f"?optionCountyCourt={county_code}"
-        f"&dc={start_date_str}"
-        f"&td={end_date_str}"
-        )
     
     def get_page_html(self) -> BeautifulSoup:
         """ Extracts the current page's HTML, returns it as a BeautifulSoup object to be parsed """
