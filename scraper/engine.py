@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 import pyautogui
+from bs4 import BeautifulSoup
+import pyperclip
+
 
 class WebcrimsBot:
     """
@@ -36,16 +39,8 @@ class WebcrimsBot:
         # Submit
         pyautogui.press('tab')
         pyautogui.press('enter')
-        pyautogui.sleep(10) # Wait for results to load
+        pyautogui.sleep(15) # Wait for results to load
     
-    def submit_all(self):
-        """ Submit for all courts initialized in self.court_codes """
-        self.open_chrome()
-        for county_code in self.court_codes:
-            url = self.build_url(county_code)
-            self.navigate_to_url(url)
-            self.submit_current_form()
-
     def build_url(self, county_code) -> str:
 
         start_date_str = self.start_date.strftime('%m/%d/%Y')
@@ -58,9 +53,43 @@ class WebcrimsBot:
         f"&td={end_date_str}"
         )
     
+    def get_page_html(self) -> BeautifulSoup:
+        """ Extracts the current page's HTML, returns it as a BeautifulSoup object to be parsed """
+         # open DevTools
+        pyautogui.press('f12')
+        pyautogui.sleep(2)
+
+        # focus console (Ctrl + `)
+        pyautogui.hotkey('ctrl', '`')
+        pyautogui.sleep(1)
+
+        # type JS to get full HTML
+        pyautogui.write("copy(document.querySelector('*').outerHTML)")
+        pyautogui.press('enter')
+
+        pyautogui.sleep(1)
+
+        # close DevTools 
+        pyautogui.press('f12')
+        pyautogui.sleep(1)
+
+        html = pyperclip.paste()
+        print(html)
+        return BeautifulSoup(html, 'html.parser')
+
+    def submit_all(self):
+        """ Submit for all courts initialized in self.court_codes """
+        self.open_chrome()
+        for county_code in self.court_codes:
+            url = self.build_url(county_code)
+            self.navigate_to_url(url)
+            self.submit_current_form()
+            self.get_page_html()
+    
 if __name__ == "__main__":
-    court_codes = ["NY051033J%3AU", "NY051043J%3AU", "NY051053J%3AU"]
+    # "NY051043J%3AU", "NY051053J%3AU"
+    court_codes = ["NY051033J%3AU"]
     bot = WebcrimsBot(court_codes=court_codes)
-    print(bot.end_date)
+    bot.submit_all()
 
 
