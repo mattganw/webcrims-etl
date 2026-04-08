@@ -1,5 +1,5 @@
 COURT_CODE_LOOKUP = {
-    "NY051033J%3AU": "Suffolk 1st Supreme Court",
+    "NY051033J%3AU": "Suffolk 1st District Court",
     "NY051043J%3AU": "Suffolk 2nd District Court",
     "NY051053J%3AU": "Suffolk 3rd District Court", 
     "NY051063J%3AU": "Suffolk 4th District Court",
