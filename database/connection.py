@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class MSSQLConnector:
+class MSSQLConnection:
     """
     Handles connection to an MSSQL database.
     """
@@ -40,9 +40,4 @@ class MSSQLConnector:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-if __name__ == "__main__":
-    with MSSQLConnector() as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM Webcrims")
-        rows = cursor.fetchall()
-        print(rows)
+    

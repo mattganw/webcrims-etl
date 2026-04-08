@@ -1,5 +1,6 @@
 import pyautogui
 import pyperclip
+import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
@@ -80,10 +81,13 @@ class WebcrimsBot:
         html = pyperclip.paste()
         return BeautifulSoup(html, 'html.parser')
 
-    def run(self):
+    def run(self) -> pd.DataFrame:
         """ Submit for all courts initialized in self.court_codes """
         print("Starting Webcrims extract...")
-        print(f" Start date: {self.start_date.strftime('%m/%d/%Y')}; End date: {self.end_date.strftime('%m/%d/%Y')}")
+        print(f" Start date: {self.start_date.strftime('%m/%d/%Y')}\tEnd date: {self.end_date.strftime('%m/%d/%Y')}")
+
+        # Collect all dfs
+        dataframes = []
         
         parser = WebcrimsParser()
         self.open_chrome()
@@ -98,6 +102,9 @@ class WebcrimsBot:
             html_soup = self.get_page_html()
             df = parser.create_dataframe(soup=html_soup, court_name=court_name)
             print(f"{df.shape[0]} dockets found for {court_name}")
+            dataframes.append(df)
+
+        return pd.concat(dataframes)
 
 
 
