@@ -3,7 +3,8 @@ from database import MSSQLConnection
 from database import DBController
 
 def main() -> None:
-    court_codes = ["NY051033J%3AU", "NY051043J%3AU", "NY051053J%3AU"]
+    # Suffolk 1-6 District Courts
+    court_codes = ["NY051033J%3AU", "NY051043J%3AU", "NY051053J%3AU", "NY051063J%3AU", "NY051073J%3AU", "NY051083J%3AU"]
     days = 7
 
     db_conn = MSSQLConnection()
