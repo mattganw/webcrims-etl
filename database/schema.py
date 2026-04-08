@@ -20,6 +20,7 @@ if __name__ == "__main__":
                 CalendarSection NVARCHAR(100),
                 Judge NVARCHAR(255), 
                 CourtDate DATE,
+                Court NVARCHAR(255),
                 Active BIT NOT NULL DEFAULT 1,
                 CreatedAt DATETIME NOT NULL DEFAULT SYSDATETIME(), 
                 ModifiedAt DATETIME NULL
@@ -42,6 +43,7 @@ if __name__ == "__main__":
                 CalendarSection NVARCHAR(100),
                 Judge NVARCHAR(255), 
                 CourtDate DATE,
+                Court NVARCHAR(255),
                 CreatedAt DATETIME NOT NULL DEFAULT SYSDATETIME()
             );
         END
