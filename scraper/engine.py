@@ -1,14 +1,16 @@
-from datetime import datetime, timedelta
 import pyautogui
-from bs4 import BeautifulSoup
 import pyperclip
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 
+from .parser import WebcrimsParser
+from .courts import COURT_CODE_LOOKUP
 
 class WebcrimsBot:
     """
     Args:
         court_codes: list of encoded court codes
-        num_days: amount of days to extract
+        num_days: amount of days to extract from calendar
     """
     def __init__(self, court_codes: list[str], num_days: int = 0):
         
@@ -16,14 +18,14 @@ class WebcrimsBot:
         self.start_date = datetime.today()
         self.end_date = (self.start_date + timedelta(days=num_days))
     
-    def build_url(self, county_code) -> str:
+    def build_url(self, court_code: str) -> str:
         """ Builds the URL to navigate to """
         start_date_str = self.start_date.strftime('%m/%d/%Y')
         end_date_str = self.end_date.strftime('%m/%d/%Y')
         
         return (
         "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
-        f"?optionCountyCourt={county_code}"
+        f"?optionCountyCourt={court_code}"
         f"&dc={start_date_str}"
         f"&td={end_date_str}"
         )
@@ -55,6 +57,8 @@ class WebcrimsBot:
     
     def get_page_html(self) -> BeautifulSoup:
         """ Extracts the current page's HTML, returns it as a BeautifulSoup object to be parsed """
+
+        pyperclip.copy('')
          # open DevTools
         pyautogui.press('f12')
         pyautogui.sleep(2)
@@ -74,22 +78,26 @@ class WebcrimsBot:
         pyautogui.sleep(1)
 
         html = pyperclip.paste()
-        print(html)
         return BeautifulSoup(html, 'html.parser')
 
-    def submit_all(self):
+    def run(self):
         """ Submit for all courts initialized in self.court_codes """
+        print("Starting Webcrims extract...")
+        print(f" Start date: {self.start_date.strftime('%m/%d/%Y')}; End date: {self.end_date.strftime('%m/%d/%Y')}")
+        
+        parser = WebcrimsParser()
         self.open_chrome()
-        for county_code in self.court_codes:
-            url = self.build_url(county_code)
+        for court_code in self.court_codes:
+            court_name = COURT_CODE_LOOKUP.get(court_code, "Unknown Court")
+            print(f"Extracting court calendar for {court_name}...")
+
+            # Extract
+            url = self.build_url(court_code)
             self.navigate_to_url(url)
             self.submit_current_form()
-            self.get_page_html()
-    
-if __name__ == "__main__":
-    # "NY051043J%3AU", "NY051053J%3AU"
-    court_codes = ["NY051033J%3AU"]
-    bot = WebcrimsBot(court_codes=court_codes)
-    bot.submit_all()
+            html_soup = self.get_page_html()
+            df = parser.create_dataframe(soup=html_soup, court_name=court_name)
+            print(f"{df.shape[0]} dockets found for {court_name}")
+
 
 
