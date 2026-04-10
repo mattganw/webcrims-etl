@@ -4,14 +4,14 @@
 - Handles record lifecycle changes, including updates, additions, and deletions.
 
 ## Installation and Setup
-1. Clone this repository
+1. Clone this repository:
 
 ```bash
 git clone https://github.com/mattganw/webcrims-etl.git
 cd webcrims-etl
 ```
 
-2. Install dependencies
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -35,7 +35,7 @@ WAIT_TIME=15
 DB_CONNECTION_STRING=<your_mssql_connection_string_here>
 ```
 
-4. Run pipeline using Python
+4. Run pipeline using Python:
 
 ```bash
 python main.py
