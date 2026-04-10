@@ -2,7 +2,7 @@ from scraper import WebcrimsBot
 from scraper import SeleniumScraper
 from database import MSSQLConnection
 from database import DBController
-from config import BotSettings
+from config import Settings
 
 def main() -> None:
 
@@ -10,8 +10,8 @@ def main() -> None:
     # sel.run()
 
     # All Suffolk Courts
-    settings = BotSettings()
-    court_codes = settings.select_by_name("Suffolk")
+    settings = Settings()
+    court_codes = settings.select_by_name(settings.court_name)
 
     # Connect to DB and instantiate DBController
     db_conn = MSSQLConnection()
@@ -26,6 +26,7 @@ def main() -> None:
 
     # Extract and transform
     df = bot.run()
+    print(df)
 
     # Load into DB
     controller.insert_staging(df)
