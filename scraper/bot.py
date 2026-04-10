@@ -106,8 +106,7 @@ class WebcrimsBot:
         start_date_str = self.start_date.strftime('%m/%d/%Y')
         end_date_str = self.end_date.strftime('%m/%d/%Y')
         
-        print(color("Starting Webcrims extract...", Fore.YELLOW))
-        print(f"Start date: {color(start_date_str, Fore.GREEN)} \t End date: {color(end_date_str, Fore.GREEN)}")
+        print(f"Start date: {color(start_date_str, Fore.CYAN)} \t End date: {color(end_date_str, Fore.CYAN)}")
 
         # Collect all dfs
         dataframes = []
@@ -116,7 +115,7 @@ class WebcrimsBot:
         self.open_chrome()
         for court_code in self.court_codes.keys():
             court_name = self.court_codes.get(court_code, "Unknown Court")
-            print(f"Extracting court calendar for {color(court_name, Fore.GREEN)}...")
+            print(f"Extracting court calendar for {color(court_name, Fore.MAGENTA)}...")
 
             # Extract
             url = self.build_url(court_code)
