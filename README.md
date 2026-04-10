@@ -19,7 +19,7 @@ pip install -r requirements.txt
 
 3. Set up environment variable
 
-Copy .env.example and create a .env in the project root:
+Copy .env.example and create a .env file in the project root:
 
 ```bash
 # Court name to scrape (leave empty for all courts)
