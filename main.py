@@ -1,5 +1,4 @@
 from config import Settings
-from utils import SeleniumScraper
 from database import MSSQLConnection
 from database import DBController
 from scraper import WebcrimsBot
