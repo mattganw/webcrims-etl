@@ -12,7 +12,7 @@ SeleniumScraper helper class used to initialize and refresh court_codes.json:
     - Must be run without headless mode
 """
 
-class SeleniumScraper:
+class CourtRefresher:
 
     URL = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
 
@@ -59,7 +59,6 @@ class SeleniumScraper:
 
     def run(self) -> None:
         """ Runner """
-        
         try:
             self.navigate_to()
             opts = self.find_dropdown()
