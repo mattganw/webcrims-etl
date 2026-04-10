@@ -35,7 +35,7 @@ class Settings(BaseSettings):
 
     def select_by_name(self, phrase: Optional[str] = None):
         if not phrase or phrase.strip() == "":  # Empty means all courts
-            return list(self.court_codes)  # Return all court codes as a list
+            return self.court_codes
         return {
             code: name
             for code, name in self.court_codes.items()
