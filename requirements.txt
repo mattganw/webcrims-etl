@@ -5,3 +5,4 @@ pandas
 beautifulsoup4
 mssql-python
 requests
+pydantic-settings

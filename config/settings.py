@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     court_name: Optional[str] = None  # None = all courts
     num_days: int = 7
     wait_time: int = 15
+    db_connection_string: str
+
     url: str = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
     court_codes: dict = Field(default_factory=_load_court_codes)
 
@@ -33,9 +35,9 @@ class Settings(BaseSettings):
 
     def select_by_name(self, phrase: Optional[str] = None):
         if not phrase or phrase.strip() == "":  # Empty means all courts
-            return list(self.court_codes.values())  # Return all court codes as a list
-        return [
-            code
+            return list(self.court_codes)  # Return all court codes as a list
+        return {
+            code: name
             for code, name in self.court_codes.items()
             if phrase.lower() in name.lower()
-        ]
+        }

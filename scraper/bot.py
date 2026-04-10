@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from .parser import WebcrimsParser
-from .courts import COURT_CODE_LOOKUP
 
 class WebcrimsBot:
     """
@@ -13,7 +12,7 @@ class WebcrimsBot:
         court_codes: list of encoded court codes
         num_days: amount of days to extract from calendar
     """
-    def __init__(self, court_codes: list[str], num_days: int, wait_time: int, url: str):
+    def __init__(self, court_codes: dict[str, str], num_days: int, wait_time: int, url: str):
         
         self.court_codes = court_codes
         self.num_days = num_days
@@ -22,6 +21,18 @@ class WebcrimsBot:
 
         self.start_date = datetime.today()
         self.end_date = (self.start_date + timedelta(days=self.num_days))
+
+    def __repr__(self) -> None:
+        str_res = (
+        "WebcrimsBot("
+        f"\n court_codes = {self.court_codes}"
+        f"\n num_days = {self.num_days}"
+        f"\n wait_time = {self.wait_time}"
+        f"\n url = {self.url}"
+        f"\n)"
+        )
+        
+        return str_res
     
     def build_url(self, court_code: str) -> str:
         """ Builds the URL to navigate to """
@@ -87,6 +98,10 @@ class WebcrimsBot:
 
     def run(self) -> pd.DataFrame:
         """ Submit for all courts initialized in self.court_codes """
+
+        if not self.court_codes:
+            raise ValueError("court_codes cannot be empty.")
+        
         print("Starting Webcrims extract...")
         print(f" Start date: {self.start_date.strftime('%m/%d/%Y')}\tEnd date: {self.end_date.strftime('%m/%d/%Y')}")
 
@@ -95,8 +110,8 @@ class WebcrimsBot:
         
         parser = WebcrimsParser()
         self.open_chrome()
-        for court_code in self.court_codes:
-            court_name = COURT_CODE_LOOKUP.get(court_code, "Unknown Court")
+        for court_code in self.court_codes.keys():
+            court_name = self.court_codes.get(court_code, "Unknown Court")
             print(f"Extracting court calendar for {court_name}...")
 
             # Extract
