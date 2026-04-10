@@ -17,7 +17,7 @@ cd webcrims-etl
 pip install -r requirements.txt
 ```
 
-3. Set up environment variable
+3. Set up environment variables:
 
 Copy .env.example and create a .env file in the project root:
 
