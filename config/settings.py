@@ -1,52 +1,39 @@
-# config/settings.py
-from __future__ import annotations
-
-import json
 from pathlib import Path
-from typing import Dict, List, Optional
+import json
+from typing import Optional
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
+def _load_court_codes():
+    path = Path(__file__).parent / "data" / "court_codes.json"
+    return json.loads(path.read_text())
 
-class BotSettings:
-    """
-    Lightweight settings container for your application.
-    Loads:
-      - environment settings (you define defaults here)
-      - court codes from JSON
-    """
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file='.env')
 
-    def __init__(
-        self,
-        *,
-        court_codes_path: Optional[str] = None, 
-        num_days: int = 7,
-        wait_time: int = 15
-    ):
-        self.num_days = num_days
+    court_name: Optional[str] = None  # None = all courts
+    num_days: int = 7
+    wait_time: int = 15
+    url: str = "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
+    court_codes: dict = Field(default_factory=_load_court_codes)
 
-        # Determine JSON location
-        if court_codes_path is None:
-            court_codes_path = (
-                Path(__file__).resolve().parent / "data" / "court_codes.json"
-            )
+    @field_validator('num_days')
+    @classmethod
+    def validate_num_days(cls, v: int) -> int:
+        if v < 0:
+            raise ValueError('num_days must be >= 0')
+        return v
+    
+    @field_validator('wait_time')
+    @classmethod
+    def validate_wait_time(cls, v: int) -> int:
+        if v < 15:
+            raise ValueError('wait_time must be >= 15')
+        return v
 
-        self.court_codes_path = Path(court_codes_path)
-
-        # Load dict from JSON file
-        self.court_codes = self._load_court_codes()
-        self.wait_time = wait_time
-
-    def _load_court_codes(self) -> Dict[str, str]:
-        """Loads court_codes.json and returns a dictionary."""
-        if not self.court_codes_path.exists():
-            raise FileNotFoundError(
-                f"court_codes.json not found at {self.court_codes_path}. "
-                "Run SeleniumScraper() first."
-            )
-
-        return json.loads(self.court_codes_path.read_text(encoding="utf-8"))
-
-    def select_by_name(self, phrase: str) -> List[str]:
-        """Return codes that match a keyword ('Suffolk', 'District', etcphrase = phrase.lower()"""
+    def select_by_name(self, phrase: Optional[str] = None):
+        if not phrase or phrase.strip() == "":  # Empty means all courts
+            return list(self.court_codes.values())  # Return all court codes as a list
         return [
             code
             for code, name in self.court_codes.items()

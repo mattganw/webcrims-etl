@@ -1,1 +1,1 @@
-from .settings import BotSettings
+from .settings import Settings
