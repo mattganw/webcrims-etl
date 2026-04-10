@@ -13,11 +13,12 @@ class WebcrimsBot:
         court_codes: list of encoded court codes
         num_days: amount of days to extract from calendar
     """
-    def __init__(self, court_codes: list[str], num_days: int, wait_time: int):
+    def __init__(self, court_codes: list[str], num_days: int, wait_time: int, url: str):
         
         self.court_codes = court_codes
         self.num_days = num_days
         self.wait_time = wait_time
+        self.url = url
 
         self.start_date = datetime.today()
         self.end_date = (self.start_date + timedelta(days=self.num_days))
@@ -28,7 +29,7 @@ class WebcrimsBot:
         end_date_str = self.end_date.strftime('%m/%d/%Y')
         
         return (
-        "https://iapps.courts.state.ny.us/webcrim_attorney/AttorneyCalendar"
+        f"{self.url}"
         f"?optionCountyCourt={court_code}"
         f"&dc={start_date_str}"
         f"&td={end_date_str}"
