@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from .parser import WebcrimsParser
+from utils import color, Fore
 
 class WebcrimsBot:
     """
@@ -102,8 +103,11 @@ class WebcrimsBot:
         if not self.court_codes:
             raise ValueError("court_codes cannot be empty.")
         
-        print("Starting Webcrims extract...")
-        print(f" Start date: {self.start_date.strftime('%m/%d/%Y')}\tEnd date: {self.end_date.strftime('%m/%d/%Y')}")
+        start_date_str = self.start_date.strftime('%m/%d/%Y')
+        end_date_str = self.end_date.strftime('%m/%d/%Y')
+        
+        print(color("Starting Webcrims extract...", Fore.YELLOW))
+        print(f"Start date: {color(start_date_str, Fore.GREEN)} \t End date: {color(end_date_str, Fore.GREEN)}")
 
         # Collect all dfs
         dataframes = []
@@ -112,7 +116,7 @@ class WebcrimsBot:
         self.open_chrome()
         for court_code in self.court_codes.keys():
             court_name = self.court_codes.get(court_code, "Unknown Court")
-            print(f"Extracting court calendar for {court_name}...")
+            print(f"Extracting court calendar for {color(court_name, Fore.GREEN)}...")
 
             # Extract
             url = self.build_url(court_code)
@@ -120,7 +124,9 @@ class WebcrimsBot:
             self.submit_current_form()
             html_soup = self.get_page_html()
             df = parser.create_dataframe(soup=html_soup, court_name=court_name)
-            print(f"{df.shape[0]} dockets found for {court_name}")
+
+            num_dockets = df.shape[0]
+            print(f"{color(num_dockets, Fore.GREEN)} dockets found for {court_name}")
             dataframes.append(df)
 
         return pd.concat(dataframes)

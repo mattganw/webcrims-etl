@@ -1,5 +1,6 @@
 from .connection import MSSQLConnection
 import pandas as pd
+from utils import color, Fore
 
 class DBController():
     def __init__(self, connection: MSSQLConnection): 
@@ -36,7 +37,8 @@ class DBController():
             cursor = conn.cursor()
             cursor.executemany(insert_sql, df.values.tolist())
             conn.commit()
-            print(f"{df.shape[0]} rows inserted into dbo.Webcrims_Staging")
+            row_count = df.shape[0]
+            print(f"{color(row_count, Fore.GREEN)} rows inserted into dbo.Webcrims_Staging")
 
         return df.shape[0]
     

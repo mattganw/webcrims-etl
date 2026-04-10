@@ -6,11 +6,7 @@ from scraper import WebcrimsBot
 
 def main() -> None:
 
-    # Refresh courts data
-    sel = SeleniumScraper()
-    sel.run()
-
-    # All Suffolk Courts
+    # Get settings and court codes
     settings = Settings()
     COURT_CODES = settings.select_by_name(settings.court_name)
     
