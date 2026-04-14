@@ -1,4 +1,5 @@
 from .connection import MSSQLConnection
+from config import logger
 
 class DBSchema:
     def __init__(self, connection: MSSQLConnection):
@@ -58,10 +59,10 @@ class DBSchema:
             cursor = conn.cursor()
 
             cursor.execute(self.WEBCRIMS_SQL)
-            print("Created dbo.Webcrims")
+            logger.info("Created dbo.Webcrims")
 
             cursor.execute(self.WEBCRIMS_STAGING_SQL)
-            print("Created dbo.Webcrims_Staging")
+            logger.info("Created dbo.Webcrims_Staging")
 
             conn.commit()
 
@@ -71,7 +72,7 @@ class DBSchema:
             cursor = conn.cursor()
 
             cursor.execute(self.DELETE_WEBCRIMS_SQL)
-            print("Dropped dbo.Webcrims")
+            logger.info("Dropped dbo.Webcrims")
 
             conn.commit()
 
@@ -81,7 +82,7 @@ class DBSchema:
             cursor = conn.cursor()
 
             cursor.execute(self.DELETE_WEBCRIMS_STAGING_SQL)
-            print("Dropped dbo.Webcrims_Staging")
+            logger.info("Dropped dbo.Webcrims_Staging")
 
             conn.commit()
 
@@ -89,5 +90,5 @@ class DBSchema:
         """ Hard reset by deleting dbo.Webcrims and dbo.Webcrims_Staging """
         self.delete_webcrims()
         self.delete_webcrims_staging()
-        print("RESET: Dropped dbo.Webcrims and dbo.Webcrims_Staging")
+        logger.info("RESET: Dropped dbo.Webcrims and dbo.Webcrims_Staging")
 

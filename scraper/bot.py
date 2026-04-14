@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
 from .parser import WebcrimsParser
-from utils import color, Fore
+from config import logger
+
 
 class WebcrimsBot:
     """
@@ -101,12 +102,13 @@ class WebcrimsBot:
         """ Submit for all courts initialized in self.court_codes """
 
         if not self.court_codes:
+            logger.error("court_codes cannot be empty.")
             raise ValueError("court_codes cannot be empty.")
         
         start_date_str = self.start_date.strftime('%m/%d/%Y')
         end_date_str = self.end_date.strftime('%m/%d/%Y')
-        
-        print(f"Start date: {color(start_date_str, Fore.CYAN)} \t End date: {color(end_date_str, Fore.CYAN)}")
+
+        logger.info(f"Start date: {start_date_str} \t End date: {end_date_str}")
 
         # Collect all dfs
         dataframes = []
@@ -115,7 +117,7 @@ class WebcrimsBot:
         self.open_chrome()
         for court_code in self.court_codes.keys():
             court_name = self.court_codes.get(court_code, "Unknown Court")
-            print(f"Extracting court calendar for {color(court_name, Fore.MAGENTA)}...")
+            logger.info(f"Extracting court calendar for {court_name}...")
 
             # Extract
             url = self.build_url(court_code)
@@ -125,7 +127,7 @@ class WebcrimsBot:
             df = parser.create_dataframe(soup=html_soup, court_name=court_name)
 
             num_dockets = df.shape[0]
-            print(f"{color(num_dockets, Fore.GREEN)} dockets found for {court_name}")
+            logger.info(f"{num_dockets} dockets found for {court_name}")
             dataframes.append(df)
 
         return pd.concat(dataframes)

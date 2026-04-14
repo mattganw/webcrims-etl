@@ -1,6 +1,6 @@
 from .connection import MSSQLConnection
 import pandas as pd
-from utils import color, Fore
+from config import logger
 
 class DBController():
     def __init__(self, connection: MSSQLConnection): 
@@ -10,6 +10,7 @@ class DBController():
         """ Inserts DataFrame into dbo.Webcrims_Staging, returns amount of rows inserted """
 
         if df.empty:
+            logger.error("Empty DataFrame. Cannot insert.")
             raise Exception("Empty DataFrame. Cannot insert")
         
         insert_sql = '''
@@ -38,7 +39,7 @@ class DBController():
             cursor.executemany(insert_sql, df.values.tolist())
             conn.commit()
             row_count = df.shape[0]
-            print(f"{color(row_count, Fore.GREEN)} rows inserted into dbo.Webcrims_Staging")
+            logger.info(f"{row_count} rows inserted into dbo.Webcrims_Staging")
 
         return df.shape[0]
     
@@ -50,7 +51,7 @@ class DBController():
             cursor = conn.cursor()
             cursor.execute(truncate_sql)
             conn.commit()
-            print("Truncated dbo.Webcrims_Staged")
+            logger.info("dbo.Webcrims_Staging truncated.")
 
     def merge_tables(self) -> None:
         """ Merges dbo.Webcrims_Staging into dbo.Webcrims """
@@ -86,8 +87,9 @@ class DBController():
             cursor.execute("SELECT TOP (1) 1 FROM dbo.Webcrims_Staging;")
             is_empty = cursor.fetchone() is None
             if is_empty:
+                logger.error("Staging table is empty. Cannot perform merge.")
                 raise Exception("Staging table is empty. Cannot perform merge.")
             
             cursor.execute(merge_sql)
             conn.commit()
-            print("dbo.Webcrims_Staging merged into dbo.Webcrims")
+            logger.info("dbo.Webcrims_Staging merged into dbo.Webcrims")

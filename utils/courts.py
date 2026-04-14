@@ -6,6 +6,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from pathlib import Path
 import json
 
+from config import logger
+
 """ 
 SeleniumScraper helper class used to initialize and refresh court_codes.json: 
     - Scrapes website to store unique court codes and their matching names
@@ -64,7 +66,8 @@ class CourtRefresher:
             opts = self.find_dropdown()
             court_dict = self.create_dict(opts)
             self.save_to_json(court_dict=court_dict)
-            print("court_codes.json saved.")
+            logger.info("court_codes.json saved")
         except Exception as e:
+            logger.error("Error saving court_codes.json")
             raise(f"Error saving court_codes.json: {e}") from e
         

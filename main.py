@@ -1,9 +1,8 @@
+from config import logger
 from config import Settings
 from database import MSSQLConnection
 from database import DBController
 from scraper import WebcrimsBot
-
-from utils import color, Fore
 
 def main() -> None:
 
@@ -22,7 +21,7 @@ def main() -> None:
         url=settings.url
     )
 
-    print(color("Starting Webcrims extract...", Fore.YELLOW))
+    logger.info("Starting Webcrims extract...")
     # Extract and transform
     df = bot.run()
 
@@ -32,7 +31,7 @@ def main() -> None:
     controller.merge_tables()
     controller.truncate_staging()
 
-    print(color("End of run.", Fore.YELLOW))
+    logger.info("End of run.")
 
 if __name__ == "__main__":
     main()
