@@ -1,3 +1,11 @@
+"""
+DBController class to handle and perform db operations using a MSSQLConnection
+    Defined methods/operations:
+        - INSERT
+        - MERGE
+        - TRUNCATE
+"""
+
 from .connection import MSSQLConnection
 import pandas as pd
 from config import logger

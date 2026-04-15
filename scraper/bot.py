@@ -1,3 +1,8 @@
+"""
+WebcrimsBot class to handle form submission logic for Webcrims.
+Utilizes the PyAutoGui library to perform automated typing and clicking
+"""
+
 import pyautogui
 import pyperclip
 import pandas as pd
@@ -12,7 +17,9 @@ class WebcrimsBot:
     """
     Args:
         court_codes: list of encoded court codes
-        num_days: amount of days to extract from calendar
+        num_days: amount of days after today to extract from calendar
+        wait_time: amount of time to wait after submitting the form to account for time to load
+        url: the url the bot will visit and perform its methods on
     """
     def __init__(self, court_codes: dict[str, str], num_days: int, wait_time: int, url: str):
         
@@ -74,7 +81,7 @@ class WebcrimsBot:
         pyautogui.sleep(self.wait_time) # Wait for results to load
     
     def get_page_html(self) -> BeautifulSoup:
-        """ Extracts the current page's HTML, returns it as a BeautifulSoup object to be parsed """
+        """ Copies the current page's HTML, returns it as a BeautifulSoup object to be parsed """
 
         pyperclip.copy('')
          # open DevTools
@@ -99,7 +106,7 @@ class WebcrimsBot:
         return BeautifulSoup(html, 'html.parser')
 
     def run(self) -> pd.DataFrame:
-        """ Submit for all courts initialized in self.court_codes """
+        """ Submit for all self.court_codes """
 
         if not self.court_codes:
             logger.error("court_codes cannot be empty.")

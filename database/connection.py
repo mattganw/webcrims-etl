@@ -1,3 +1,8 @@
+"""
+MSSQLConnection class used to handle connections to the MSSQL db.
+Instantiate to create a connection that can be used to perform your db operations.
+"""
+
 import os
 from mssql_python import connect
 from dotenv import load_dotenv

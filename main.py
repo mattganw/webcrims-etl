@@ -5,7 +5,7 @@ from database import DBController
 from scraper import WebcrimsBot
 
 def main() -> None:
-
+    """ Main pipeline runner """
     # Get settings and court codes
     settings = Settings()
     COURT_CODES = settings.select_by_name(settings.court_name)

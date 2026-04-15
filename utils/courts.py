@@ -1,3 +1,9 @@
+""" 
+SeleniumScraper helper class used to initialize and refresh court_codes.json: 
+    - Scrapes website to store unique court codes and their matching names
+    - Must be run without headless mode
+"""
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.edge.options import Options
@@ -7,12 +13,6 @@ from pathlib import Path
 import json
 
 from config import logger
-
-""" 
-SeleniumScraper helper class used to initialize and refresh court_codes.json: 
-    - Scrapes website to store unique court codes and their matching names
-    - Must be run without headless mode
-"""
 
 class CourtRefresher:
 

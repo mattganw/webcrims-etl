@@ -1,3 +1,7 @@
+"""
+WebcrimsParser class parses Webcrims HTML using BeautifulSoup and converts the extracted table data into a pandas DataFrame.
+"""
+
 from bs4 import BeautifulSoup
 import pandas as pd
 

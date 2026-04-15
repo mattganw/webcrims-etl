@@ -1,3 +1,11 @@
+"""
+DBSchema class used to initialize and reset dbo.Webcrims, dbo.Webcrims_Staging tables.
+    Defined methods/operations:
+        - CREATE TABLE
+        - DROP TABLE
+"""
+
+
 from .connection import MSSQLConnection
 from config import logger
 
