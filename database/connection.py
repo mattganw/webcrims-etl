@@ -2,23 +2,18 @@
 MSSQLConnection class used to handle connections to the MSSQL db.
 Instantiate to create a connection that can be used to perform your db operations.
 """
-
-import os
 from mssql_python import connect
-from dotenv import load_dotenv
-
-load_dotenv()
 
 class MSSQLConnection:
     """
     Handles connection to an MSSQL database.
     """
 
-    def __init__(self, conn_str: str | None = None):
+    def __init__(self, conn_str: str):
         """
         Initialize with a connection string. If not provided, loads from env.
         """
-        self.conn_str = conn_str or os.getenv("DB_CONNECTION_STRING")
+        self.conn_str = conn_str
         if not self.conn_str:
             raise ValueError("Connection string is missing.")
 
