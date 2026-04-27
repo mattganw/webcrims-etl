@@ -57,8 +57,36 @@ class DBSchema:
         END
         '''
 
+        self.WEBCRIMS_ARCHIVE_SQL = '''
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM sys.tables 
+            WHERE name = 'Webcrims_Archive'
+        )
+        BEGIN
+            CREATE TABLE Webcrims_Archive (
+                ID INT IDENTITY(1, 1) PRIMARY KEY,
+                Docket NVARCHAR(MAX) NOT NULL,
+                Defendant NVARCHAR(MAX),
+                DefendantDOB DATETIME, 
+                ADA NVARCHAR(MAX), 
+                ADAEmail NVARCHAR(MAX),
+                PCMSLink NVARCHAR(MAX), 
+                CaseNotes NVARCHAR(MAX), 
+                QuickNotes NVARCHAR(MAX), 
+                NotesToProsecutor NVARCHAR(MAX), 
+                Charges NVARCHAR(MAX), 
+                CourtDate DATETIME, 
+                CourtPart NVARCHAR(MAX),
+                Active BIT NOT NULL DEFAULT 0,
+                CreatedAt DATETIME NOT NULL DEFAULT SYSDATETIME(), 
+            );
+        END
+        '''
+
         self.DELETE_WEBCRIMS_SQL = '''DROP TABLE IF EXISTS dbo.Webcrims;'''
         self.DELETE_WEBCRIMS_STAGING_SQL = '''DROP TABLE IF EXISTS dbo.Webcrims_Staging;'''
+        self.DELETE_WEBCRIMS_ARCHIVE_SQL = '''DROP TABLE IF EXISTS dbo.Webcrims_Archive;'''
 
 
     def create_tables(self) -> None:
@@ -71,6 +99,9 @@ class DBSchema:
 
             cursor.execute(self.WEBCRIMS_STAGING_SQL)
             logger.info("Created dbo.Webcrims_Staging")
+
+            cursor.execute(self.WEBCRIMS_ARCHIVE_SQL)
+            logger.info("Created dbo.Webcrims_Archive")
 
             conn.commit()
 
@@ -94,9 +125,20 @@ class DBSchema:
 
             conn.commit()
 
+    def delete_webcrims_archive(self) -> None:
+        """ Drops table dbo.Webcrims_Archive """
+        with self.connection as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(self.DELETE_WEBCRIMS_ARCHIVE_SQL)
+            logger.info("Dropped dbo.Webcrims_Archive")
+
+            conn.commit()
+
     def reset(self) -> None:
-        """ Hard reset by deleting dbo.Webcrims and dbo.Webcrims_Staging """
+        """ Hard reset by deleting all tables """
         self.delete_webcrims()
         self.delete_webcrims_staging()
-        logger.info("RESET: Dropped dbo.Webcrims and dbo.Webcrims_Staging")
+        self.delete_webcrims_archive()
+        logger.info("RESET: Schema reset.")
 
