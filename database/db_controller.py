@@ -14,6 +14,54 @@ class DBController():
     def __init__(self, connection: MSSQLConnection): 
         self.connection = connection
 
+    def insert_archives(self, df: pd.DataFrame) -> int:
+        """ Inserts DataFrame into dbo.Webcrims_Archive, returns amount of rows inserted """
+        if df.empty:
+            logger.error("Empty DataFrame. Cannot insert.")
+            raise Exception("Empty DataFrame. Cannot insert")
+        
+        
+        insert_sql = """
+            INSERT INTO dbo.Webcrims_Archive (
+                Docket, 
+                Defendant, 
+                DefendantDOB,
+                ADA,
+                ADAEmail,
+                PCMSLink,
+                CaseNotes,
+                QuickNotes,
+                NotesToProsecutor,
+                Charges,
+                CourtDate,
+                CourtPart
+            )
+            VALUES (
+                NULLIF(?, ''),  -- Docket
+                NULLIF(?, ''),  -- Defendant
+                NULLIF(?, ''),  -- DefendantDOB 
+                NULLIF(?, ''),  -- ADA
+                NULLIF(?, ''),  -- ADAEmail
+                NULLIF(?, ''),  -- PCMSLink
+                NULLIF(?, ''),  -- CaseNotes
+                NULLIF(?, ''),  -- QuickNotes
+                NULLIF(?, ''),  -- NotesToProsecutor
+                NULLIF(?, ''),  -- Charges
+                NULLIF(?, ''),  -- CourtDate 
+                NULLIF(?, '')   -- CourtPart
+            );
+        """
+
+        with self.connection as conn:
+            cursor = conn.cursor()
+            cursor.executemany(insert_sql, df.values.tolist())
+            conn.commit()
+            row_count = df.shape[0]
+            logger.info(f"{row_count} rows inserted into dbo.Webcrims_Archive")
+
+        return df.shape[0]
+
+
     def insert_staging(self, df: pd.DataFrame) -> int:
         """ Inserts DataFrame into dbo.Webcrims_Staging, returns amount of rows inserted """
 
